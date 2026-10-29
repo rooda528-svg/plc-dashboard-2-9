@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>لوحة أدلة مجتمعات التعلم – نطاق 2.9</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{--navy:#1d3557;--navy2:#2b4c7e;--gold:#c49a45;--bg:#f5f7fb;--panel:#fff;--line:#dde3ec;--fg:#1f2937;--muted:#6b7686;--ok:#1e7a4f;--okbg:#e3f2ea;--warn:#8a5a00;--warnbg:#fff1d6;--bad:#a12b2b;--badbg:#fbe3e3;--r:12px}
+*{box-sizing:border-box}
+body{margin:0;font-family:Tajawal,Arial,sans-serif;background:var(--bg);color:var(--fg);font-size:15px;line-height:1.6}
+button,input,select,textarea{font:inherit}
+a{color:var(--navy2)}
+.hidden{display:none!important}
+header.top{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-bottom:4px solid var(--gold)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+.top .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding-top:16px;padding-bottom:16px}
+.brand h1{margin:0;font-size:1.3rem;font-weight:700}
+.brand p{margin:2px 0 0;color:var(--gold);font-size:.9rem}
+.who{display:flex;align-items:center;gap:10px;font-size:.9rem}
+nav.tabs{background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+nav.tabs .wrap{display:flex;gap:4px;overflow-x:auto}
+nav.tabs button{border:0;background:none;padding:12px 14px;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+nav.tabs button.on{color:var(--navy);border-bottom-color:var(--gold);font-weight:700}
+main.wrap{padding-top:20px;padding-bottom:60px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:16px}
+.card h2{margin:0 0 4px;font-size:1.15rem;color:var(--navy)}
+.card h3{margin:0 0 8px;font-size:1rem;color:var(--navy2)}
+.note{color:var(--muted);font-size:.88rem;margin:0 0 12px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;border-inline-start:4px solid var(--gold)}
+.kpi b{display:block;font-size:1.8rem;color:var(--navy);line-height:1.2}
+.kpi span{color:var(--muted);font-size:.85rem}
+.btn{border:0;border-radius:999px;padding:8px 16px;background:var(--navy);color:#fff;cursor:pointer;font-weight:500}
+.btn.gold{background:var(--gold);color:var(--navy)}
+.btn.ghost{background:transparent;color:var(--navy);border:1px solid var(--line)}
+.btn.small{padding:4px 12px;font-size:.85rem}
+.btn.danger{background:var(--badbg);color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+.top .btn.ghost{color:#fff;border-color:rgba(255,255,255,.4)}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th{background:var(--navy);color:#fff;font-weight:500;text-align:right;padding:8px 10px;white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:nth-child(even) td{background:#f8fafd}
+.tw{overflow-x:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px}
+.ccard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px;border-top:4px solid var(--navy2);cursor:pointer;transition:box-shadow .15s}
+.ccard:hover{box-shadow:0 4px 14px rgba(29,53,87,.12)}
+.ccard h3{margin:0 0 6px;color:var(--navy)}
+.meta{color:var(--muted);font-size:.85rem}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.8rem;background:#eef2f8;color:var(--navy2)}
+.pill.ok{background:var(--okbg);color:var(--ok)}.pill.warn{background:var(--warnbg);color:var(--warn)}.pill.bad{background:var(--badbg);color:var(--bad)}
+form.f{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+form.f label{display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:var(--muted)}
+form.f .full{grid-column:1/-1}
+input,select,textarea{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fff;color:var(--fg);width:100%}
+textarea{min-height:80px;resize:vertical}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.msg{font-size:.88rem;min-height:1.2em}
+.msg.err{color:var(--bad)}.msg.ok{color:var(--ok)}
+.login{max-width:420px;margin:60px auto}
+.login .card{padding:28px}
+.back{background:none;border:0;color:var(--navy2);cursor:pointer;padding:0;margin-bottom:10px}
+.bars{display:flex;flex-direction:column;gap:8px}
+.bar{display:grid;grid-template-columns:minmax(110px,32%) 1fr 56px;gap:8px;align-items:center;font-size:.88rem}
+.bar .t{height:14px;background:#edf1f7;border-radius:999px;overflow:hidden}
+.bar .f{height:100%;background:var(--navy2);border-radius:999px}
+.bar .f.g{background:var(--gold)}
+.bar .v{text-align:left;direction:ltr;color:var(--muted)}
+.stars{display:flex;gap:4px}
+.stars label{flex-direction:row!important;align-items:center;gap:2px!important;color:var(--fg)!important}
+.stars input{width:auto}
+.empty{color:var(--muted);text-align:center;padding:18px}
+dialog{border:0;border-radius:var(--r);padding:0;max-width:640px;width:calc(100% - 32px)}
+dialog::backdrop{background:rgba(15,25,45,.45)}
+dialog .card{margin:0;border:0}
+@media (max-width:600px){.bar{grid-template-columns:90px 1fr 48px}}
+</style>
+</head>
+<body>
+
+<!-- ====== Login ====== -->
+<section id="v-login" class="login wrap hidden">
+  <div class="card">
+    <h2>لوحة أدلة مجتمعات التعلم المهنية</h2>
+    <p class="note">نطاق 2.9 · سجّل الدخول بالإيميل وكلمة السر</p>
+    <form class="f" id="loginForm">
+      <label class="full">الإيميل<input type="email" id="lEmail" required autocomplete="username"></label>
+      <label class="full">كلمة السر<input type="password" id="lPass" required autocomplete="current-password"></label>
+      <div class="full actions"><button class="btn" type="submit">دخول</button><span class="msg" id="lMsg"></span></div>
+    </form>
+  </div>
+</section>
+
+<!-- ====== App ====== -->
+<div id="v-app" class="hidden">
+  <header class="top"><div class="wrap">
+    <div class="brand"><h1>لوحة أدلة مجتمعات التعلم المهنية</h1><p>نطاق المدارس 2.9 · الفصل الدراسي الثاني</p></div>
+    <div class="who"><span id="meName"></span><button class="btn ghost small" id="logout">خروج</button></div>
+  </div></header>
+  <nav class="tabs"><div class="wrap" id="tabs">
+    <button data-v="home">الرئيسية</button>
+    <button data-v="communities">المجتمعات</button>
+    <button data-v="evidence">الأدلة</button>
+    <button data-v="analysis">التحليل</button>
+    <button data-v="members" class="adminOnly">الأعضاء</button>
+  </div></nav>
+  <main class="wrap" id="view"></main>
+</div>
+
+<!-- ====== Not a member ====== -->
+<section id="v-denied" class="login wrap hidden">
+  <div class="card">
+    <h2>ما عندك صلاحية</h2>
+    <p class="note">هذا الإيميل غير مضاف لأعضاء اللوحة. تواصلي مع منسقة النطاق.</p>
+    <button class="btn" id="logout2">خروج</button>
+  </div>
+</section>
+
+<dialog id="dlg"><div class="card" id="dlgBody"></div></dialog>
+
+<script>
+/* ============ Settings ============ */
+const SUPABASE_URL = 'https://akmfmthkrrjendqiqttz.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_Cqfu4FZyB72-oKA0o637iA_tTVd1Cu7';
+const EV_TYPES = ['كشف حضور','استبانة استفادة','محضر لقاء','خطة درس','عينة عمل طالب','صور','تقرير','أخرى'];
+const EV_STATUS = ['مرفوع','معتمد','يحتاج تعديل'];
+const SCHOOLS = ['الهير','الرفعة','الهلال','الجوري','البدع','ناهل','الرسالة','الشويب','الفوعة','التفوق','علي بن أبي طالب','المسيرة'];
+const DOMAINS = ['الذكاء الاصطناعي والتحول الرقمي','التعليم والتعلم','جودة التعليم والتطوير المدرسي','التقويم والتحصيل الدراسي','شؤون الطلبة وجودة الحياة','المهارات الإدارية والمهنية','المناهج والتخصصات الأكاديمية','القيادة والإدارة المدرسية'];
+const Q = [['q_relevance','ارتباط اللقاء باحتياجي المهني'],['q_usefulness','فائدة المحتوى'],['q_applicability','قابلية التطبيق في الصف/العمل'],['q_overall','الرضا العام عن اللقاء']];
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let me = null, current = 'home';
+
+/* ============ Helpers ============ */
+const $ = s => document.querySelector(s);
+function h(tag, attrs, ...kids){
+  const e = document.createElement(tag);
+  if (attrs) for (const [k,v] of Object.entries(attrs)){
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else if (k === 'html') e.innerHTML = v;
+    else e.setAttribute(k, v === true ? '' : v);
+  }
+  for (const k of kids.flat()) if (k != null && k !== false) e.append(k.nodeType ? k : document.createTextNode(String(k)));
+  return e;
+}
+const fmtDate = d => d ? new Date(/^\d{4}-\d{2}-\d{2}$/.test(d) ? d+'T00:00' : d).toLocaleDateString('ar-AE',{year:'numeric',month:'short',day:'numeric'}) : '—';
+const avg = a => a.length ? a.reduce((x,y)=>x+y,0)/a.length : null;
+const n1 = v => v == null ? '—' : (Math.round(v*10)/10).toString();
+const statusPill = s => h('span',{class:'pill '+(s==='معتمد'?'ok':s==='يحتاج تعديل'?'warn':'')}, s);
+const isAdmin = () => me && me.role === 'admin';
+function err(e){ console.error(e); alert('صار خطأ: ' + (e.message || e)); }
+async function q(p){ const {data, error} = await p; if (error) throw error; return data; }
+function setView(node){ const v = $('#view'); v.replaceChildren(node); window.scrollTo(0,0); }
+function loading(){ setView(h('div',{class:'empty'},'جاري التحميل…')); }
+function openDlg(title, body){ $('#dlgBody').replaceChildren(h('h2',null,title), body); $('#dlg').showModal(); }
+function closeDlg(){ $('#dlg').close(); }
+function formData(form){ const o = {}; new FormData(form).forEach((v,k)=>{ o[k] = (typeof v==='string' ? v.trim() : v) || null; }); return o; }
+function selectEl(name, opts, val, extra){ return h('select',Object.assign({name},extra||{}), h('option',{value:''},'—'), opts.map(o=>h('option',{value:o, selected: o===val},o))); }
+
+/* ============ Auth ============ */
+$('#loginForm').addEventListener('submit', async e=>{
+  e.preventDefault(); const m = $('#lMsg'); m.className='msg'; m.textContent='جاري الدخول…';
+  const {error} = await sb.auth.signInWithPassword({email:$('#lEmail').value.trim(), password:$('#lPass').value});
+  if (error){ m.className='msg err'; m.textContent = 'الإيميل أو كلمة السر غير صحيحة'; }
+});
+$('#logout').onclick = $('#logout2').onclick = ()=> sb.auth.signOut();
+sb.auth.onAuthStateChange((_ev, session)=>{ boot(session); });
+
+let booted = null;
+async function boot(session){
+  const key = session ? session.user.id : 'none';
+  if (booted === key) return; booted = key;
+  ['#v-login','#v-app','#v-denied'].forEach(s=>$(s).classList.add('hidden'));
+  if (!session){ $('#v-login').classList.remove('hidden'); return; }
+  const email = session.user.email.toLowerCase();
+  const {data} = await sb.from('members').select('*');
+  me = (data||[]).find(m => m.email.toLowerCase() === email) || null;
+  if (!me){ $('#v-denied').classList.remove('hidden'); return; }
+  $('#meName').textContent = me.full_name + (isAdmin() ? ' · مديرة' : (me.school ? ' · ' + me.school : ''));
+  document.querySelectorAll('.adminOnly').forEach(b=>b.classList.toggle('hidden', !isAdmin()));
+  $('#v-app').classList.remove('hidden');
+  go(location.hash.slice(1) || 'home');
+}
+document.querySelectorAll('#tabs button').forEach(b=> b.onclick = ()=> go(b.dataset.v));
+window.addEventListener('hashchange', ()=>{ if (me) route(location.hash.slice(1)); });
+function go(v){ if (location.hash.slice(1) === v) route(v); else location.hash = v; }
+function route(hash){
+  const [v, id] = (hash||'home').split('/');
+  current = v;
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on', b.dataset.v === v || (v==='community'&&b.dataset.v==='communities') || (v==='session'&&b.dataset.v==='communities')));
+  const views = {home, communities, community, session, evidence, analysis, members};
+  (views[v] || home)(id).catch(err);
+}
+
+/* ============ Home ============ */
+async function home(){
+  loading();
+  const [sum, sess, att, ev] = await Promise.all([
+    q(sb.from('community_summary').select('*').order('name')),
+    q(sb.from('sessions').select('id', {count:'exact'})),
+    q(sb.from('attendance').select('id').eq('present', true)),
+    q(sb.from('evidence').select('status'))
+  ]);
+  const k = (v,l)=> h('div',{class:'kpi'}, h('b',null,v), h('span',null,l));
+  const approved = ev.filter(e=>e.status==='معتمد').length;
+  const tbl = h('table',null,
+    h('thead',null,h('tr',null,['المجتمع','المجال','المدارس','اللقاءات','الحضور','الرضا (من 5)','قابلية التطبيق','الأدلة','المعتمد'].map(t=>h('th',null,t)))),
+    h('tbody',null, sum.length ? sum.map(r=>h('tr',null,
+      h('td',null,h('a',{href:'#community/'+r.id},r.name)), h('td',null,r.domain||'—'), h('td',null,r.schools||'—'),
+      h('td',null,r.sessions_count), h('td',null,r.attendance_count), h('td',null,n1(r.avg_satisfaction)),
+      h('td',null,n1(r.avg_applicability)), h('td',null,r.evidence_count), h('td',null,r.evidence_approved)
+    )) : h('tr',null,h('td',{colspan:9,class:'empty'},'ما في مجتمعات للحين. ابدئي من تبويب «المجتمعات».')))
+  );
+  setView(h('div',null,
+    h('div',{class:'kpis'}, k(sum.length,'مجتمع تعلم'), k(sess.length,'لقاء منفذ'), k(att.length,'حضور مسجل'), k(ev.length,'دليل مرفوع'), k(approved,'دليل معتمد')),
+    h('div',{class:'card'}, h('h2',null,'ملخص المجتمعات' + (!isAdmin()&&me.school ? ' – ' + me.school : '')), h('p',{class:'note'},'يتحدث تلقائياً مع كل حضور أو استبانة أو دليل يُضاف.'), h('div',{class:'tw'},tbl))
+  ));
+}
+
+/* ============ Communities ============ */
+async function communities(){
+  loading();
+  const list = await q(sb.from('community_summary').select('*').order('name'));
+  const add = h('button',{class:'btn gold',onclick:()=>communityForm()},'+ مجتمع جديد');
+  setView(h('div',null,
+    h('div',{class:'row',style:'margin-bottom:14px'}, h('h2',{style:'margin:0;color:var(--navy)'},'مجتمعات التعلم'), add),
+    list.length ? h('div',{class:'grid'}, list.map(c=>h('div',{class:'ccard',onclick:()=>go('community/'+c.id)},
+      h('h3',null,c.name), h('div',{class:'meta'}, (c.domain||'—') + ' · ' + (c.schools||'—')),
+      h('div',{class:'pills'}, h('span',{class:'pill'},c.sessions_count+' لقاء'), h('span',{class:'pill'},c.attendance_count+' حضور'), h('span',{class:'pill ok'},c.evidence_count+' دليل'))
+    ))) : h('div',{class:'card empty'},'ما في مجتمعات للحين. اضغطي «+ مجتمع جديد».')
+  ));
+}
+function communityForm(c){
+  c = c || {};
+  const f = h('form',{class:'f'},
+    h('label',{class:'full'},'اسم المجتمع *',h('input',{name:'name',required:true,value:c.name||''})),
+    h('label',null,'المجال التدريبي',selectEl('domain',DOMAINS,c.domain)),
+    h('label',null,'المدرسة / المدارس',h('input',{name:'schools',value:c.schools||(!isAdmin()&&me.school?me.school:''),list:'schoolList',placeholder:'مثال: الرفعة، ناهل',required:!isAdmin()&&!!me.school})),
+    !isAdmin()&&me.school ? h('p',{class:'note full'},'لازم يكون اسم مدرستك ('+me.school+') ضمن المدارس.') : null,
+    h('datalist',{id:'schoolList'},SCHOOLS.map(s=>h('option',{value:s}))),
+    h('label',null,'الميسّر',h('input',{name:'facilitator',value:c.facilitator||''})),
+    h('label',null,'الفئة المستهدفة',h('input',{name:'target_group',value:c.target_group||'',placeholder:'معلمون / قيادات / موظفو دعم'})),
+    h('label',null,'تاريخ البداية',h('input',{type:'date',name:'start_date',value:c.start_date||''})),
+    h('label',null,'تاريخ النهاية',h('input',{type:'date',name:'end_date',value:c.end_date||''})),
+    h('label',{class:'full'},'الهدف والوصف',h('textarea',{name:'description'},c.description||'')),
+    h('div',{class:'full actions'}, h('button',{class:'btn',type:'submit'},'حفظ'), h('button',{class:'btn ghost',type:'button',onclick:closeDlg},'إلغاء'))
+  );
+  f.onsubmit = async e=>{ e.preventDefault(); try{
+    const d = formData(f);
+    if (c.id) await q(sb.from('communities').update(d).eq('id',c.id));
+    else await q(sb.from('communities').insert(d));
+    closeDlg(); route(location.hash.slice(1));
+  }catch(x){err(x);} };
+  openDlg(c.id ? 'تعديل المجتمع' : 'مجتمع جديد', f);
+}
+
+async function community(id){
+  loading();
+  const [c, sessions, evs] = await Promise.all([
+    q(sb.from('communities').select('*').eq('id',id).single()),
+    q(sb.from('sessions').select('*, attendance(present), feedback(q_overall)').eq('community_id',id).order('session_date')),
+    q(sb.from('evidence').select('*').eq('community_id',id).order('created_at',{ascending:false}))
+  ]);
+  const sf = h('form',{class:'f'},
+    h('label',null,'تاريخ اللقاء *',h('input',{type:'date',name:'session_date',required:true})),
+    h('label',null,'موضوع اللقاء *',h('input',{name:'topic',required:true})),
+    h('label',{class:'full'},'ملاحظات',h('input',{name:'notes'})),
+    h('div',{class:'full'},h('button',{class:'btn',type:'submit'},'+ إضافة لقاء'))
+  );
+  sf.onsubmit = async e=>{ e.preventDefault(); try{ await q(sb.from('sessions').insert(Object.assign(formData(sf),{community_id:id}))); community(id);}catch(x){err(x);} };
+  setView(h('div',null,
+    h('button',{class:'back',onclick:()=>go('communities')},'→ رجوع للمجتمعات'),
+    h('div',{class:'card'},
+      h('div',{class:'row'}, h('h2',null,c.name), h('div',{class:'actions'},
+        h('button',{class:'btn ghost small',onclick:()=>communityForm(c)},'تعديل'),
+        isAdmin() && h('button',{class:'btn danger small',onclick:async()=>{ if(confirm('حذف المجتمع وكل لقاءاته وأدلته؟')){ try{await q(sb.from('communities').delete().eq('id',id)); go('communities');}catch(x){err(x);} } }},'حذف'))),
+      h('div',{class:'meta'}, [c.domain, c.schools, c.facilitator && ('الميسّر: '+c.facilitator), c.target_group].filter(Boolean).join(' · ')),
+      c.description && h('p',null,c.description),
+      h('div',{class:'meta'}, 'من '+fmtDate(c.start_date)+' إلى '+fmtDate(c.end_date))
+    ),
+    h('div',{class:'card'}, h('h3',null,'اللقاءات'),
+      h('div',{class:'tw'},h('table',null,
+        h('thead',null,h('tr',null,['التاريخ','الموضوع','الحضور','الرضا','',].map(t=>h('th',null,t)))),
+        h('tbody',null, sessions.length ? sessions.map(s=>h('tr',null,
+          h('td',null,fmtDate(s.session_date)), h('td',null,s.topic),
+          h('td',null,s.attendance.filter(a=>a.present).length),
+          h('td',null,n1(avg(s.feedback.map(f=>f.q_overall).filter(Boolean)))),
+          h('td',null,h('a',{href:'#session/'+s.id,class:'btn small'},'فتح اللقاء'))
+        )) : h('tr',null,h('td',{colspan:5,class:'empty'},'ما في لقاءات للحين.')))
+      )),
+      h('h3',{style:'margin-top:16px'},'لقاء جديد'), sf
+    ),
+    h('div',{class:'card'}, h('div',{class:'row'},h('h3',null,'أدلة المجتمع'), h('button',{class:'btn gold small',onclick:()=>evidenceForm(id,null,sessions)},'+ رفع دليل')),
+      evidenceTable(evs, sessions, ()=>community(id)))
+  ));
+}
+
+/* ============ Session ============ */
+async function session(id){
+  loading();
+  const s = await q(sb.from('sessions').select('*, communities(id,name,schools)').eq('id',id).single());
+  const [att, fb, evs] = await Promise.all([
+    q(sb.from('attendance').select('*').eq('session_id',id).order('created_at')),
+    q(sb.from('feedback').select('*').eq('session_id',id).order('created_at')),
+    q(sb.from('evidence').select('*').eq('session_id',id).order('created_at',{ascending:false}))
+  ]);
+  const cid = s.communities.id;
+
+  // attendance
+  const af = h('form',{class:'f'},
+    h('label',null,'الاسم *',h('input',{name:'participant_name',required:true})),
+    h('label',null,'المدرسة',selectEl('school',SCHOOLS)),
+    h('label',null,'الصفة',h('input',{name:'job_role',placeholder:'معلم / إداري…'})),
+    h('div',{class:'actions',style:'align-self:end'},h('button',{class:'btn',type:'submit'},'+ إضافة')));
+  af.onsubmit = async e=>{ e.preventDefault(); try{ await q(sb.from('attendance').insert(Object.assign(formData(af),{session_id:id,present:true}))); session(id);}catch(x){err(x);} };
+  const bulk = h('textarea',{placeholder:'الصقي الأسماء هنا، كل اسم في سطر'});
+  const bulkSchool = selectEl('bulkSchool',SCHOOLS);
+  const bulkBtn = h('button',{class:'btn ghost',type:'button',onclick:async()=>{
+    const names = bulk.value.split('\n').map(x=>x.trim()).filter(Boolean); if(!names.length) return;
+    try{ await q(sb.from('attendance').insert(names.map(n=>({session_id:id,participant_name:n,school:bulkSchool.value||null,present:true})))); session(id);}catch(x){err(x);} }},'إضافة الأسماء دفعة واحدة');
+
+  // feedback
+  const ff = h('form',{class:'f'},
+    h('label',null,'صفة المستجيب',h('input',{name:'respondent_role',placeholder:'معلم / إداري…'})),
+    Q.map(([k,l])=>h('label',{class:'full'},l, h('div',{class:'stars'},[1,2,3,4,5].map(v=>h('label',null,h('input',{type:'radio',name:k,value:v,required:true}),v))))),
+    h('label',{class:'full'},'ماذا سأطبق بعد اللقاء؟',h('input',{name:'will_apply'})),
+    h('label',{class:'full'},'ملاحظات',h('input',{name:'comment'})),
+    h('div',{class:'full'},h('button',{class:'btn',type:'submit'},'+ حفظ الاستبانة')));
+  ff.onsubmit = async e=>{ e.preventDefault(); try{ const d = formData(ff); Q.forEach(([k])=>d[k]=Number(d[k])); await q(sb.from('feedback').insert(Object.assign(d,{session_id:id}))); session(id);}catch(x){err(x);} };
+  const fbBars = h('div',{class:'bars'}, Q.map(([k,l])=>{ const a = avg(fb.map(r=>r[k]).filter(Boolean)); return h('div',{class:'bar'},h('span',null,l),h('div',{class:'t'},h('div',{class:'f',style:'width:'+((a||0)/5*100)+'%'})),h('span',{class:'v'},n1(a)+' / 5')); }));
+
+  setView(h('div',null,
+    h('button',{class:'back',onclick:()=>go('community/'+cid)},'→ رجوع إلى '+s.communities.name),
+    h('div',{class:'card'},
+      h('div',{class:'row'}, h('h2',null,s.topic), h('div',{class:'actions'},
+        h('button',{class:'btn ghost small',onclick:()=>printAttendance(s,att)},'🖨 طباعة كشف الحضور'),
+        h('button',{class:'btn ghost small',onclick:()=>printFeedback(s)},'🖨 طباعة الاستبانة'),
+        isAdmin() && h('button',{class:'btn danger small',onclick:async()=>{ if(confirm('حذف اللقاء؟')){ try{await q(sb.from('sessions').delete().eq('id',id)); go('community/'+cid);}catch(x){err(x);} } }},'حذف اللقاء'))),
+      h('div',{class:'meta'}, s.communities.name+' · '+fmtDate(s.session_date)), s.notes && h('p',null,s.notes)),
+    h('div',{class:'grid'},
+      h('div',{class:'card'}, h('h3',null,'الحضور ('+att.filter(a=>a.present).length+')'),
+        h('div',{class:'tw'},h('table',null,h('thead',null,h('tr',null,['#','الاسم','المدرسة','الصفة',''].map(t=>h('th',null,t)))),
+          h('tbody',null, att.length ? att.map((a,i)=>h('tr',null,h('td',null,i+1),h('td',null,a.participant_name),h('td',null,a.school||'—'),h('td',null,a.job_role||'—'),
+            h('td',null, isAdmin() && h('button',{class:'btn danger small',onclick:async()=>{try{await q(sb.from('attendance').delete().eq('id',a.id)); session(id);}catch(x){err(x);}}},'×')))) : h('tr',null,h('td',{colspan:5,class:'empty'},'ما في حضور مسجل.'))))),
+        h('h3',{style:'margin-top:14px'},'إضافة حاضر'), af,
+        h('details',{style:'margin-top:12px'}, h('summary',null,'إضافة مجموعة أسماء مرة وحدة'), h('div',{style:'display:grid;gap:8px;margin-top:8px'}, bulk, h('label',{class:'meta'},'المدرسة للكل ',bulkSchool), bulkBtn))),
+      h('div',{class:'card'}, h('h3',null,'استبانة الاستفادة ('+fb.length+' مستجيب)'), fbBars,
+        fb.filter(r=>r.will_apply).length ? h('div',{style:'margin-top:12px'}, h('div',{class:'meta'},'ماذا سيطبقون:'), h('ul',null, fb.filter(r=>r.will_apply).map(r=>h('li',null,r.will_apply)))) : null,
+        h('h3',{style:'margin-top:14px'},'إدخال استبانة'), ff)
+    ),
+    h('div',{class:'card'}, h('div',{class:'row'},h('h3',null,'أدلة هذا اللقاء'), h('button',{class:'btn gold small',onclick:()=>evidenceForm(cid,id,[s])},'+ رفع دليل')),
+      evidenceTable(evs, [s], ()=>session(id)))
+  ));
+}
+
+/* ============ Evidence ============ */
+function evidenceForm(communityId, sessionId, sessions, communitiesList){
+  const file = h('input',{type:'file',name:'file'});
+  const commSel = communitiesList ? h('select',{name:'community_id',required:true}, h('option',{value:''},'اختاري المجتمع'), communitiesList.map(c=>h('option',{value:c.id},c.name))) : null;
+  const f = h('form',{class:'f'},
+    commSel && h('label',{class:'full'},'المجتمع *',commSel),
+    h('label',null,'نوع الدليل *',selectEl('evidence_type',EV_TYPES,null,{required:true})),
+    h('label',null,'العنوان *',h('input',{name:'title',required:true})),
+    sessions && sessions.length ? h('label',{class:'full'},'اللقاء',h('select',{name:'session_id'},h('option',{value:''},'— عام للمجتمع —'),sessions.map(s=>h('option',{value:s.id,selected:s.id===sessionId},fmtDate(s.session_date)+' · '+s.topic)))) : null,
+    h('label',{class:'full'},'الملف',file),
+    h('label',{class:'full'},'ملاحظات',h('input',{name:'notes'})),
+    h('div',{class:'full actions'}, h('button',{class:'btn',type:'submit'},'رفع'), h('button',{class:'btn ghost',type:'button',onclick:closeDlg},'إلغاء'), h('span',{class:'msg'}))
+  );
+  f.onsubmit = async e=>{ e.preventDefault(); const m = f.querySelector('.msg'); const btn = f.querySelector('button[type=submit]');
+    try{
+      btn.disabled = true; m.className='msg'; m.textContent='جاري الرفع…';
+      const d = formData(f); delete d.file;
+      const cid = communityId || d.community_id; d.community_id = cid;
+      if (!d.session_id) d.session_id = null;
+      const fl = file.files[0];
+      if (fl){
+        const ext = (fl.name.split('.').pop()||'bin').toLowerCase().replace(/[^a-z0-9]/g,'');
+        const path = cid + '/' + Date.now() + '-' + Math.random().toString(36).slice(2,8) + '.' + ext;
+        const up = await sb.storage.from('evidence').upload(path, fl, {contentType: fl.type || undefined});
+        if (up.error) throw up.error;
+        d.file_path = path; d.notes = d.notes ? d.notes + ' · ' + fl.name : fl.name;
+      }
+      await q(sb.from('evidence').insert(d));
+      closeDlg(); route(location.hash.slice(1));
+    }catch(x){ btn.disabled=false; m.className='msg err'; m.textContent = 'ما تم الرفع: '+(x.message||x); }
+  };
+  openDlg('رفع دليل', f);
+}
+async function openFile(path){
+  try{ const {data, error} = await sb.storage.from('evidence').createSignedUrl(path, 600); if (error) throw error; window.open(data.signedUrl, '_blank'); }catch(x){err(x);}
+}
+function evidenceTable(evs, sessions, reload, communitiesById){
+  const sname = id => { const s = (sessions||[]).find(x=>x.id===id); return s ? fmtDate(s.session_date) : '—'; };
+  return h('div',{class:'tw'},h('table',null,
+    h('thead',null,h('tr',null,[communitiesById&&'المجتمع','النوع','العنوان','اللقاء','رفعه','التاريخ','الحالة',''].filter(Boolean).map(t=>h('th',null,t)))),
+    h('tbody',null, evs.length ? evs.map(e=>h('tr',null,
+      communitiesById && h('td',null,(communitiesById[e.community_id]||{}).name||'—'),
+      h('td',null,e.evidence_type), h('td',null,e.title, e.notes ? h('div',{class:'meta'},e.notes) : null),
+      h('td',null, communitiesById ? '—' : sname(e.session_id)), h('td',{class:'meta'},e.uploaded_by||'—'), h('td',null,fmtDate(e.created_at)),
+      h('td',null, isAdmin() ? (()=>{ const sel = h('select',{onchange:async()=>{try{await q(sb.from('evidence').update({status:sel.value}).eq('id',e.id)); reload();}catch(x){err(x);}}}, EV_STATUS.map(s=>h('option',{value:s,selected:s===e.status},s))); return sel; })() : statusPill(e.status)),
+      h('td',null, h('div',{class:'actions'},
+        e.file_path && h('button',{class:'btn small',onclick:()=>openFile(e.file_path)},'فتح'),
+        isAdmin() && h('button',{class:'btn danger small',onclick:async()=>{ if(confirm('حذف الدليل؟')){ try{ if(e.file_path) await sb.storage.from('evidence').remove([e.file_path]); await q(sb.from('evidence').delete().eq('id',e.id)); reload(); }catch(x){err(x);} } }},'حذف')))
+    )) : h('tr',null,h('td',{colspan:8,class:'empty'},'ما في أدلة للحين.')))
+  ));
+}
+async function evidence(){
+  loading();
+  const [evs, comms] = await Promise.all([ q(sb.from('evidence').select('*').order('created_at',{ascending:false})), q(sb.from('communities').select('id,name').order('name')) ]);
+  const byId = Object.fromEntries(comms.map(c=>[c.id,c]));
+  const fc = h('select',null,h('option',{value:''},'كل المجتمعات'),comms.map(c=>h('option',{value:c.id},c.name)));
+  const ft = h('select',null,h('option',{value:''},'كل الأنواع'),EV_TYPES.map(t=>h('option',{value:t},t)));
+  const fs = h('select',null,h('option',{value:''},'كل الحالات'),EV_STATUS.map(t=>h('option',{value:t},t)));
+  const box = h('div');
+  const draw = ()=> box.replaceChildren(evidenceTable(evs.filter(e=>(!fc.value||e.community_id===fc.value)&&(!ft.value||e.evidence_type===ft.value)&&(!fs.value||e.status===fs.value)), [], evidence, byId));
+  [fc,ft,fs].forEach(s=>s.onchange=draw); draw();
+  setView(h('div',{class:'card'},
+    h('div',{class:'row'}, h('h2',null,'كل الأدلة ('+evs.length+')'), comms.length ? h('button',{class:'btn gold small',onclick:()=>evidenceForm(null,null,null,comms)},'+ رفع دليل') : null),
+    h('p',{class:'note'}, isAdmin() ? 'غيّري حالة الدليل من القائمة: مرفوع ← معتمد أو يحتاج تعديل.' : 'الاعتماد تقوم به منسقة النطاق.'),
+    h('div',{class:'actions',style:'margin-bottom:12px'}, fc, ft, fs), box));
+}
+
+/* ============ Analysis ============ */
+async function analysis(){
+  loading();
+  const [sum, fb, evs, att] = await Promise.all([
+    q(sb.from('community_summary').select('*').order('name')),
+    q(sb.from('feedback').select('*')),
+    q(sb.from('evidence').select('evidence_type,status')),
+    q(sb.from('attendance').select('school,present'))
+  ]);
+  const bars = (rows, max, fmt, gold) => h('div',{class:'bars'}, rows.length ? rows.map(([l,v])=>h('div',{class:'bar'},h('span',null,l),h('div',{class:'t'},h('div',{class:'f'+(gold?' g':''),style:'width:'+(max? (v||0)/max*100 : 0)+'%'})),h('span',{class:'v'},fmt(v)))) : h('div',{class:'empty'},'ما في بيانات للحين.'));
+  const mx = a => Math.max(1, ...a.map(x=>x[1]||0));
+  const attRows = sum.map(c=>[c.name, Number(c.attendance_count)]);
+  const satRows = sum.map(c=>[c.name, c.avg_satisfaction==null?null:Number(c.avg_satisfaction)]);
+  const appRows = sum.map(c=>[c.name, c.avg_applicability==null?null:Number(c.avg_applicability)]);
+  const qRows = Q.map(([k,l])=>[l, avg(fb.map(r=>r[k]).filter(Boolean))]);
+  const tRows = EV_TYPES.map(t=>[t, evs.filter(e=>e.evidence_type===t).length]).filter(r=>r[1]);
+  const schoolRows = SCHOOLS.map(s=>[s, att.filter(a=>a.present&&a.school===s).length]).filter(r=>r[1]).sort((a,b)=>b[1]-a[1]);
+  const approved = evs.filter(e=>e.status==='معتمد').length, fix = evs.filter(e=>e.status==='يحتاج تعديل').length;
+  setView(h('div',null,
+    h('div',{class:'kpis'},
+      h('div',{class:'kpi'},h('b',null,n1(avg(fb.map(r=>r.q_overall).filter(Boolean)))),h('span',null,'متوسط الرضا العام (من 5)')),
+      h('div',{class:'kpi'},h('b',null,n1(avg(fb.map(r=>r.q_applicability).filter(Boolean)))),h('span',null,'متوسط قابلية التطبيق (من 5)')),
+      h('div',{class:'kpi'},h('b',null,fb.length),h('span',null,'استبانة مُدخلة')),
+      h('div',{class:'kpi'},h('b',null,evs.length ? Math.round(approved/evs.length*100)+'%' : '—'),h('span',null,'نسبة الأدلة المعتمدة')),
+      h('div',{class:'kpi'},h('b',null,fix),h('span',null,'دليل يحتاج تعديل'))),
+    h('div',{class:'grid'},
+      h('div',{class:'card'},h('h3',null,'الحضور حسب المجتمع'),bars(attRows,mx(attRows),v=>v)),
+      h('div',{class:'card'},h('h3',null,'الرضا العام حسب المجتمع'),bars(satRows,5,v=>n1(v)+' / 5')),
+      h('div',{class:'card'},h('h3',null,'قابلية التطبيق حسب المجتمع'),h('p',{class:'note'},'المؤشر الأقرب لأثر المجتمع على الممارسة؛ يُؤكد بالزيارات الصفية.'),bars(appRows,5,v=>n1(v)+' / 5',true)),
+      h('div',{class:'card'},h('h3',null,'بنود الاستبانة (كل المجتمعات)'),bars(qRows,5,v=>n1(v)+' / 5')),
+      h('div',{class:'card'},h('h3',null,'الأدلة حسب النوع'),bars(tRows,mx(tRows),v=>v,true)),
+      h('div',{class:'card'},h('h3',null,'الحضور حسب المدرسة'),bars(schoolRows,mx(schoolRows),v=>v)))
+  ));
+}
+
+/* ============ Members (admin) ============ */
+async function members(){
+  if (!isAdmin()) return home();
+  loading();
+  const list = await q(sb.from('members').select('*').order('created_at'));
+  const f = h('form',{class:'f'},
+    h('label',null,'الإيميل *',h('input',{type:'email',name:'email',required:true})),
+    h('label',null,'الاسم *',h('input',{name:'full_name',required:true})),
+    h('label',null,'الصلاحية',h('select',{name:'role'},h('option',{value:'member'},'عضو'),h('option',{value:'admin'},'مدير'))),
+    h('label',null,'المدرسة',selectEl('school',SCHOOLS)),
+    h('div',{class:'full'},h('button',{class:'btn',type:'submit'},'+ إضافة عضو')));
+  f.onsubmit = async e=>{ e.preventDefault(); try{ const d = formData(f); d.email = d.email.toLowerCase(); await q(sb.from('members').insert(d)); members(); }catch(x){err(x);} };
+  setView(h('div',{class:'card'},
+    h('h2',null,'أعضاء اللوحة'),
+    h('p',{class:'note'},'العضو المرتبط بمدرسة يشوف ويرفع لمجتمعات مدرسته بس. اتركي المدرسة فاضية لعضو فريق النطاق اللي يشوف كل المدارس.'),
+    h('p',{class:'note'},'بعد إضافة العضو هنا، سوي له حساب بنفس الإيميل وكلمة سر من Supabase ← Authentication ← Users ← Add user (مع Auto Confirm).'),
+    h('div',{class:'tw'},h('table',null,h('thead',null,h('tr',null,['الاسم','الإيميل','الصلاحية','المدرسة',''].map(t=>h('th',null,t)))),
+      h('tbody',null,list.map(m=>h('tr',null,h('td',null,m.full_name),h('td',null,m.email),h('td',null,m.role==='admin'?'مدير':'عضو'),h('td',null,m.school||'—'),
+        h('td',null, m.email.toLowerCase()!==me.email.toLowerCase() && h('button',{class:'btn danger small',onclick:async()=>{ if(confirm('إزالة '+m.full_name+'؟')){ try{await q(sb.from('members').delete().eq('email',m.email)); members();}catch(x){err(x);} } }},'إزالة'))))))),
+    h('h3',{style:'margin-top:16px'},'عضو جديد'), f));
+}
+
+/* ============ Printable forms ============ */
+function printWin(title, body){
+  const w = window.open('', '_blank'); if (!w) return alert('اسمحي بالنوافذ المنبثقة للطباعة');
+  const css = 'body{font-family:Tajawal,Arial,sans-serif;direction:rtl;padding:24px;color:#1f2937}h1{color:#1d3557;font-size:20px;margin:0 0 4px}h2{font-size:14px;color:#6b7686;font-weight:400;margin:0 0 16px}table{width:100%;border-collapse:collapse;font-size:13px}th{background:#1d3557;color:#fff;padding:8px;border:1px solid #1d3557}td{border:1px solid #c9d2df;padding:10px 8px;height:22px}.hd{border-bottom:3px solid #c49a45;padding-bottom:8px;margin-bottom:12px}.c{text-align:center}.q td:first-child{width:50%}@media print{button{display:none}}';
+  w.document.write('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>'+title+'</title><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet"><style>'+css+'</style></head><body><button onclick="print()">طباعة</button>'+body+'</body></html>');
+  w.document.close();
+}
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function printAttendance(s, att){
+  const rows = att.length ? att.map((a,i)=>'<tr><td class="c">'+(i+1)+'</td><td>'+esc(a.participant_name)+'</td><td>'+esc(a.school)+'</td><td>'+esc(a.job_role)+'</td><td></td></tr>').join('') : '';
+  const blanks = Array.from({length: Math.max(0, 25 - att.length)}, (_,i)=>'<tr><td class="c">'+(att.length+i+1)+'</td><td></td><td></td><td></td><td></td></tr>').join('');
+  printWin('كشف حضور', '<div class="hd"><h1>كشف حضور – مجتمع التعلم المهني</h1><h2>'+esc(s.communities.name)+' · '+esc(s.topic)+' · '+fmtDate(s.session_date)+' · نطاق 2.9</h2></div><table><thead><tr><th style="width:40px">م</th><th>الاسم</th><th>المدرسة</th><th>الصفة</th><th style="width:22%">التوقيع</th></tr></thead><tbody>'+rows+blanks+'</tbody></table><p style="margin-top:24px">اسم الميسّر: ........................ التوقيع: ................</p>');
+}
+function printFeedback(s){
+  const qrows = Q.map(([,l])=>'<tr><td>'+l+'</td>'+[1,2,3,4,5].map(()=>'<td class="c">○</td>').join('')+'</tr>').join('');
+  printWin('استبانة استفادة', '<div class="hd"><h1>استبانة الاستفادة من لقاء مجتمع التعلم</h1><h2>'+esc(s.communities.name)+' · '+esc(s.topic)+' · '+fmtDate(s.session_date)+' · نطاق 2.9</h2></div><p>الصفة: ☐ معلم ☐ قيادة ☐ موظف دعم ☐ أخرى ............</p><table class="q"><thead><tr><th>البند</th><th>1<br>ضعيف</th><th>2</th><th>3</th><th>4</th><th>5<br>ممتاز</th></tr></thead><tbody>'+qrows+'</tbody></table><p style="margin-top:20px"><b>ماذا ستطبق في صفك/عملك بعد هذا اللقاء؟</b></p><p>..............................................................................................................................</p><p>..............................................................................................................................</p><p><b>ملاحظات واقتراحات:</b></p><p>..............................................................................................................................</p>');
+}
+</script>
+</body>
+</html>
