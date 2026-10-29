@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>أدلة مجتمعات التعلم 2.9</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=El+Messiri:wght@500;600;700&display=swap">
+<style>
+*{box-sizing:border-box} body{margin:0} img{max-width:100%} [hidden]{display:none!important}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+
+/* Layout: a working ledger — summary strip, then a school × community completeness grid, then the evidence register. */
+/* Palette: ministry navy with a date-gold accent; header band carries the scope identity. */
+:root{
+  --bg:#f4f5f8; --panel:#ffffff; --ink:#18213a; --muted:#5b6478; --line:#dfe3ec;
+  --accent:#1e3a6e; --accent-soft:#e3e9f5; --gold:#b8862b; --band:#1e3a6e; --band-ink:#ffffff; --band-muted:#c9d3e8;
+  --ok:#2e7d4f; --ok-soft:#dff1e5; --warn:#b26b12; --warn-soft:#fbecd6; --bad:#b23a3a; --bad-soft:#f8e1e1;
+  --c0:#eef1f6; --c1:#d7e0f0; --c2:#9fb3da; --c3:#4f6fae; --c4:#1e3a6e;
+  --display:"El Messiri","Almarai",Tahoma,system-ui,sans-serif;
+  --body:"Almarai","Segoe UI",Tahoma,system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10141d; --panel:#171d2a; --ink:#e6eaf3; --muted:#9aa3b8; --line:#283044;
+  --accent:#8fb0ec; --accent-soft:#1d2a45; --gold:#e0b25a; --band:#1a2a4d; --band-ink:#f1f4fb; --band-muted:#aab8d6;
+  --ok:#6fcf94; --ok-soft:#1d3527; --warn:#e8a65a; --warn-soft:#3a2c18; --bad:#ec8a8a; --bad-soft:#3d2222;
+  --c0:#1c2232; --c1:#1f2d4a; --c2:#2d4777; --c3:#4f71b3; --c4:#8fb0ec; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10141d; --panel:#171d2a; --ink:#e6eaf3; --muted:#9aa3b8; --line:#283044;
+  --accent:#8fb0ec; --accent-soft:#1d2a45; --gold:#e0b25a; --band:#1a2a4d; --band-ink:#f1f4fb; --band-muted:#aab8d6;
+  --ok:#6fcf94; --ok-soft:#1d3527; --warn:#e8a65a; --warn-soft:#3a2c18; --bad:#ec8a8a; --bad-soft:#3d2222;
+  --c0:#1c2232; --c1:#1f2d4a; --c2:#2d4777; --c3:#4f71b3; --c4:#8fb0ec; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.6}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:20px}
+header{display:grid;gap:8px;background:var(--band);color:var(--band-ink);border-radius:12px;padding:20px 22px;border-bottom:4px solid var(--gold)}
+.head-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px 16px}
+.head-top h1{grid-column:2;grid-row:1;text-align:center}
+.head-top .org{grid-column:3;grid-row:1;justify-self:end}
+header .sub{text-align:center}
+header .lead{justify-content:center}
+@media (max-width:760px){.head-top{grid-template-columns:1fr}.head-top h1,.head-top .org{grid-column:1;grid-row:auto;justify-self:center}}
+.org{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px;background:var(--gold);color:#1b1404;border-radius:10px;padding:8px 18px;min-width:190px}
+.org .badge{background:none;padding:0;font-size:.9rem}
+.scope{font-family:var(--display);font-weight:700;font-size:1.1rem;color:#1b1404}
+.badge{background:var(--gold);color:#1b1404;font-weight:700;font-size:.82rem;border-radius:999px;padding:2px 12px}
+h1{font-family:var(--display);font-weight:700;font-size:2rem;margin:0;text-wrap:balance;line-height:1.3}
+.sub{color:var(--band-muted);margin:0}
+.lead{display:flex;flex-wrap:wrap;gap:10px 110px;margin-top:6px;font-size:.9rem;color:var(--band-muted)}
+.lead b{color:var(--band-ink);font-weight:600}
+nav{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+nav button{font:inherit;background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;color:var(--muted);cursor:pointer;white-space:nowrap}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+nav button:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.bar label{font-size:.85rem;color:var(--muted);display:flex;gap:6px;align-items:center}
+select,input,textarea{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:7px 10px;min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--gold);border-radius:8px;padding:12px 14px;display:grid;gap:2px}
+.kpi .n{color:var(--accent);font-family:var(--display);font-size:1.7rem;line-height:1.2;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:.82rem;color:var(--muted)}
+section.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:12px;min-width:0}
+section.card h2{font-size:1.05rem;margin:0;font-weight:600}
+.note{font-size:.84rem;color:var(--muted);margin:0}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;vertical-align:middle}
+th{font-weight:600;color:var(--muted);font-size:.8rem;white-space:nowrap}
+td{font-variant-numeric:tabular-nums}
+.grid td.cell{text-align:center;min-width:64px;padding:6px}
+.chip{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 10px;font-size:.78rem;font-weight:600;white-space:nowrap}
+.st-pending{background:var(--c0);color:var(--muted)}
+.st-approved{background:var(--ok-soft);color:var(--ok)}
+.st-needs{background:var(--warn-soft);color:var(--warn)}
+.sq{display:inline-block;min-width:44px;border-radius:6px;padding:4px 6px;font-weight:600;font-size:.82rem}
+.lvl0{background:var(--c0);color:var(--muted)} .lvl1{background:var(--c1);color:var(--ink)} .lvl2{background:var(--c2);color:var(--ink)} .lvl3{background:var(--c3);color:#fff} .lvl4{background:var(--c4);color:var(--bg)}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--warn);margin-inline-start:4px;vertical-align:middle}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:.78rem;color:var(--muted);align-items:center}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.chart svg{width:100%;height:auto;display:block}
+.chart text{fill:var(--ink);font-family:var(--body)}
+.chart .ax{fill:var(--muted);font-size:11px}
+.btn{font:inherit;border-radius:6px;padding:8px 14px;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:600}
+.btn.sm{padding:3px 9px;font-size:.8rem}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+form{display:grid;gap:14px}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.f{display:grid;gap:4px;min-width:0}
+.f label{font-size:.84rem;font-weight:500}
+.f small{color:var(--muted);font-size:.78rem}
+.extra{border:1px dashed var(--line);border-radius:8px;padding:12px;display:grid;gap:10px}
+.msg{font-size:.88rem;padding:8px 12px;border-radius:6px}
+.msg.ok{background:var(--ok-soft);color:var(--ok)} .msg.err{background:var(--bad-soft);color:var(--bad)}
+.empty{padding:28px 12px;text-align:center;color:var(--muted)}
+a{color:var(--accent)}
+.miss{display:grid;gap:6px;font-size:.88rem;margin:0;padding:0;list-style:none}
+.miss li{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}
+.miss b{min-width:120px}
+.rev{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.who{color:var(--muted);font-size:.8rem}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+
+nav{align-items:center}
+.who-bar{margin-inline-start:auto;display:flex;gap:8px;align-items:center;font-size:.84rem;color:var(--muted);white-space:nowrap;padding-inline:4px}
+.login{min-height:100vh;display:grid;place-items:center;padding-block:24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.login-card{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--gold);border-radius:12px;padding:24px;width:100%;max-width:420px;display:grid;gap:14px;justify-items:stretch}
+.login-card .org{justify-self:center}
+.login-card h1{font-size:1.4rem;text-align:center;color:var(--accent)}
+.login-card input{width:100%}
+</style>
+</head>
+<body>
+<div class="login" id="login" hidden dir="rtl" lang="ar">
+  <form id="login-form" class="login-card" novalidate>
+    <div class="org"><span class="badge">إدارة العمليات المدرسية 2</span><span class="scope">نطاق 2.9</span></div>
+    <h1>لوحة أدلة مجتمعات التعلم المهنية</h1>
+    <div class="f"><label for="l-email">الإيميل</label><input type="email" id="l-email" dir="ltr" autocomplete="username" required></div>
+    <div class="f"><label for="l-pass">كلمة المرور</label><input type="password" id="l-pass" dir="ltr" autocomplete="current-password" required></div>
+    <button class="btn primary" type="submit" id="l-btn">دخول</button>
+    <span id="l-msg" role="status"></span>
+  </form>
+</div>
+<div id="app" hidden>
+<div class="wrap" dir="rtl" lang="ar">
+  <header>
+    <div class="head-top">
+      <h1>لوحة أدلة مجتمعات التعلم المهنية</h1>
+      <div class="org"><span class="badge">إدارة العمليات المدرسية 2</span><span class="scope">نطاق 2.9</span></div>
+    </div>
+    <p class="sub">العام الدراسي 2026–2027 · الفصل الدراسي الثاني · رفع الأدلة ومراجعتها وتحليلها</p>
+    <div class="lead"><span>مدير النطاق: <b>الأستاذ علي البدواوي</b></span><span>مديرة المجتمعات: <b>علياء ضحي الكعبي</b></span><span>مساعد المدير: <b>بخيتة عيد الكتبي</b></span></div>
+  </header>
+
+  <nav role="tablist" aria-label="أقسام اللوحة">
+    <button role="tab" id="tab-analysis" aria-selected="true" data-view="analysis">التحليل</button>
+    <button role="tab" id="tab-log" aria-selected="false" data-view="log">سجل الأدلة</button>
+    <button role="tab" id="tab-add" aria-selected="false" data-view="add">إضافة دليل</button>
+    <button role="tab" id="tab-team" aria-selected="false" data-view="team" hidden>الفريق</button>
+    <span class="who-bar"><span id="me-name"></span><button class="btn sm" type="button" id="logout">تسجيل الخروج</button></span>
+  </nav>
+
+  <!-- ANALYSIS -->
+  <div id="view-analysis" style="display:grid;gap:16px">
+    <div class="bar">
+      <label for="a-cycle">الدورة
+        <select id="a-cycle"><option value="all">الكل</option><option value="1">الأولى</option><option value="2">الثانية</option></select>
+      </label>
+      <span class="note" id="a-status">يجري تحميل البيانات…</span>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><span class="n" id="k-total">—</span><span class="l">دليل مرفوع</span></div>
+      <div class="kpi"><span class="n" id="k-approved">—</span><span class="l">معتمد</span></div>
+      <div class="kpi"><span class="n" id="k-needs">—</span><span class="l">يحتاج استكمال</span></div>
+      <div class="kpi"><span class="n" id="k-pending">—</span><span class="l">بانتظار المراجعة</span></div>
+      <div class="kpi"><span class="n" id="k-att">—</span><span class="l">متوسط نسبة الحضور</span></div>
+      <div class="kpi"><span class="n" id="k-sat">—</span><span class="l">متوسط الاستفادة (من 5)</span></div>
+      <div class="kpi"><span class="n" id="k-imp">—</span><span class="l">قياسات تحسنت بعدياً</span></div>
+    </div>
+
+    <section class="card">
+      <h2>اكتمال الأدلة: المدرسة × المجتمع</h2>
+      <p class="note">كل خلية = عدد النماذج المختلفة المرفوعة من 8 (النماذج 01–07 + الشواهد). النقطة البرتقالية تعني وجود دليل يحتاج استكمالاً.</p>
+      <div class="legend"><span class="sq lvl0">0</span><span class="sq lvl1">1–2</span><span class="sq lvl2">3–5</span><span class="sq lvl3">6–7</span><span class="sq lvl4">8</span></div>
+      <div class="scroll"><table class="grid" id="grid"></table></div>
+    </section>
+
+    <div class="two">
+      <section class="card chart">
+        <h2>متوسط الاستفادة حسب المجتمع</h2>
+        <p class="note">من نموذج 06 (استبانة مدى الاستفادة)، على مقياس 1–5.</p>
+        <div id="ch-sat"></div>
+      </section>
+      <section class="card chart">
+        <h2>نسبة القياسات التي تحسنت</h2>
+        <p class="note">من نموذج 05 (قبلي وبعدي)؛ يُحتسب التحسن حسب اتجاه المؤشر.</p>
+        <div id="ch-imp"></div>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2>النواقص في المجتمعات المدرسية (1–3)</h2>
+      <p class="note">النماذج غير المرفوعة بعد لكل مدرسة بدأت رفع أدلة مجتمع ما، حسب الدورة المختارة.</p>
+      <ul class="miss" id="missing"></ul>
+    </section>
+  </div>
+
+  <!-- LOG -->
+  <div id="view-log" hidden style="display:grid;gap:12px">
+    <div class="bar">
+      <label for="l-school">المدرسة <select id="l-school"><option value="">الكل</option></select></label>
+      <label for="l-plc">المجتمع <select id="l-plc"><option value="">الكل</option></select></label>
+      <label for="l-cycle">الدورة <select id="l-cycle"><option value="">الكل</option><option value="1">الأولى</option><option value="2">الثانية</option></select></label>
+      <label for="l-status">الحالة <select id="l-status"><option value="">الكل</option><option value="pending">بانتظار المراجعة</option><option value="approved">معتمد</option><option value="needs">يحتاج استكمال</option></select></label>
+      <button class="btn primary" type="button" id="export">تنزيل السجل Excel</button>
+      <span id="export-msg" class="note" role="status"></span>
+    </div>
+    <section class="card">
+      <div class="scroll"><table id="log"></table></div>
+    </section>
+  </div>
+
+  <!-- ADD -->
+  <div id="view-add" hidden>
+    <section class="card">
+      <h2>إضافة دليل جديد</h2>
+      <p class="note">يقبل PDF والصور وWord وExcel وPowerPoint، حتى 50 ميغابايت للملف.</p>
+      <form id="add-form" novalidate>
+        <div class="fields">
+          <div class="f"><label for="f-school">المدرسة</label><select id="f-school" required></select></div>
+          <div class="f"><label for="f-plc">المجتمع</label><select id="f-plc" required></select></div>
+          <div class="f"><label for="f-cycle">الدورة</label><select id="f-cycle"><option value="1">الأولى</option><option value="2">الثانية</option></select></div>
+          <div class="f"><label for="f-form">النموذج</label><select id="f-form" required></select></div>
+          <div class="f"><label for="f-date">تاريخ الدليل</label><input type="date" id="f-date" required></div>
+          <div class="f"><label for="f-file">الملف</label><input type="file" id="f-file" accept=".pdf,image/*,.doc,.docx,.xls,.xlsx,.ppt,.pptx"><small id="f-file-hint">PDF أو صورة أو ملف Office.</small></div>
+        </div>
+        <div class="extra" id="x-02" hidden>
+          <div class="fields">
+            <div class="f"><label for="f-att">عدد الحاضرين في الجلسة</label><input type="number" id="f-att" min="0" inputmode="numeric"></div>
+            <div class="f"><label for="f-mem">عدد أعضاء المجتمع</label><input type="number" id="f-mem" min="1" inputmode="numeric"></div>
+          </div>
+        </div>
+        <div class="extra" id="x-05" hidden>
+          <div class="fields">
+            <div class="f"><label for="f-ind">المؤشر المقيس</label><input type="text" id="f-ind" placeholder="مثال: نسبة الطلبة المشاركين فعلياً"></div>
+            <div class="f"><label for="f-pre">القيمة القبلية</label><input type="number" step="any" id="f-pre"></div>
+            <div class="f"><label for="f-post">القيمة البعدية</label><input type="number" step="any" id="f-post"></div>
+            <div class="f"><label for="f-dir">التحسن يعني</label><select id="f-dir"><option value="up">ارتفاع القيمة</option><option value="down">انخفاض القيمة</option></select></div>
+          </div>
+        </div>
+        <div class="extra" id="x-06" hidden>
+          <div class="fields">
+            <div class="f"><label for="f-avg">متوسط الاستبانة (من 5)</label><input type="number" step="0.01" min="1" max="5" id="f-avg"></div>
+            <div class="f"><label for="f-resp">عدد المستجيبين</label><input type="number" min="1" id="f-resp" inputmode="numeric"></div>
+          </div>
+        </div>
+        <div class="f"><label for="f-note">ملاحظة (اختياري)</label><textarea id="f-note" rows="2"></textarea></div>
+        <div class="bar"><button class="btn primary" type="submit" id="f-submit">حفظ الدليل</button><span id="f-msg" role="status"></span></div>
+      </form>
+    </section>
+  </div>
+
+  <!-- TEAM (admin) -->
+  <div id="view-team" hidden>
+    <section class="card">
+      <h2>أعضاء الفريق</h2>
+      <p class="note">أضيفي إيميل العضو هنا، ثم أنشئي له مستخدماً في Supabase من Authentication ← Users ← Add user بنفس الإيميل وكلمة مرور، وفعّلي Auto Confirm.</p>
+      <form id="team-form" novalidate>
+        <div class="fields">
+          <div class="f"><label for="t-email">الإيميل</label><input type="email" id="t-email" dir="ltr" required></div>
+          <div class="f"><label for="t-name">الاسم</label><input type="text" id="t-name" required></div>
+          <div class="f"><label for="t-role">الصلاحية</label><select id="t-role"><option value="member">عضو: يرفع أدلة</option><option value="admin">مشرف: يرفع ويعتمد ويدير الفريق</option></select></div>
+        </div>
+        <div class="bar"><button class="btn primary" type="submit">إضافة العضو</button><span id="t-msg" role="status"></span></div>
+      </form>
+      <div class="scroll"><table id="team"></table></div>
+    </section>
+  </div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
