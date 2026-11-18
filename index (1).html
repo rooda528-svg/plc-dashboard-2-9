@@ -105,7 +105,7 @@ dialog .card{margin:0;border:0}
   <nav class="tabs"><div class="wrap" id="tabs">
     <button data-v="home">الرئيسية</button>
     <button data-v="communities">المجتمعات</button>
-    <button data-v="phases">متابعة المراحل</button>
+    <button data-v="phases">الأدلة حسب المراحل</button>
     <button data-v="evidence">الأدلة</button>
     <button data-v="analysis">التحليل</button>
     <button data-v="members" class="adminOnly">الأعضاء</button>
@@ -195,8 +195,8 @@ function go(v){ if (location.hash.slice(1) === v) route(v); else location.hash =
 function route(hash){
   const [v, id] = (hash||'home').split('/');
   current = v;
-  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on', b.dataset.v === v || (v==='community'&&b.dataset.v==='communities') || (v==='session'&&b.dataset.v==='communities')));
-  const views = {home, communities, community, session, evidence, analysis, members, phases};
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on', b.dataset.v === v || (v==='community'&&b.dataset.v==='communities') || (v==='session'&&b.dataset.v==='communities') || (v==='phase'&&b.dataset.v==='phases')));
+  const views = {home, communities, community, session, evidence, analysis, members, phases, phase};
   (views[v] || home)(id).catch(err);
 }
 
@@ -485,34 +485,107 @@ async function members(){
     h('h3',{style:'margin-top:16px'},'عضو جديد'), f));
 }
 
-/* ============ Phases tracking (SharePoint uploads) ============ */
-const PHASES = [['المرحلة الأولى - التأسيس',[['01','البيانات التحضيرية'],['02','سجل المجتمعات'],['03','مصفوفة النضج']]],
-  ['المرحلة الثانية - التنفيذ',[['04','النموذج التشغيلي'],['05','متابعة الجودة'],['06','شواهد التطبيق والأثر']]],
-  ['المرحلة الثالثة - الختام',[['07','تقرير المدرسة الفصلي']]]];
+/* ============ Phases: required evidence per phase ============ */
+const PHASES = [
+  {name:'المرحلة الأولى - التأسيس', items:[
+    {k:'01', t:'البيانات التحضيرية', doc:'ملف التحضير لورشة مجتمعات التعلم المهني (5 أوراق، منها مرشحا التيسير)', freq:'مرة واحدة', who:'المدرسة'},
+    {k:'02', t:'سجل المجتمعات', doc:'ورقة «سجل مجتمعات المدارس» في النموذج التشغيلي لمجتمع النطاق', freq:'مرة واحدة بعد تشكيل المجتمعات', who:'المدرسة'},
+    {k:'03', t:'مصفوفة النضج', doc:'أداة التقييم الذاتي (مصفوفة النضج)', freq:'مرتان: بداية العام ونهايته', who:'المدرسة', labels:['بداية العام','نهاية العام']}]},
+  {name:'المرحلة الثانية - التنفيذ', items:[
+    {k:'04', t:'النموذج التشغيلي', doc:'النموذج التشغيلي لمجتمع التعلم المهني', freq:'ملف لكل مجتمع', who:'المدرسة', perCommunity:true},
+    {k:'05', t:'متابعة الجودة', doc:'أداة متابعة جودة مجتمع التعلم المهني (مشتركة مع القيادة المدرسية)', freq:'لكل مجتمع في كل متابعة', who:'المدرسة', perCommunity:true},
+    {k:'06', t:'شواهد التطبيق والأثر', doc:'أوراق متابعة التطبيق والفاعلية + تقرير ختام دورة العمل من النموذج التشغيلي + الأدلة الفعلية', freq:'لكل مجتمع', who:'المدرسة', perCommunity:true}]},
+  {name:'المرحلة الثالثة - الختام', items:[
+    {k:'07', t:'تقرير المدرسة الفصلي', doc:'نموذج تقرير المدرسة الفصلي (القسم 5: تغذية راجعة من النطاق خلال أسبوعين من الرفع)', freq:'مرة كل فصل', who:'المدرسة + تغذية راجعة من النطاق'}]}];
+const ITEMS = PHASES.flatMap(p=>p.items);
+const PH_ST = {missing:['لم يُسلَّم','','—'], submitted:['مُسلَّم – بانتظار المراجعة','','●'], approved:['معتمد','ok','✔'], needs:['يحتاج استكمال','warn','!']};
+const phChip = st => { const [l,c,m] = PH_ST[st]||PH_ST.missing; return h('span',{class:'pill '+c, title:l}, m+' '+l); };
+const phCell = (st,n) => { const [l,c,m] = PH_ST[st]||PH_ST.missing; return h('span',{class:'pill '+c, title:l, style:'min-width:44px;text-align:center'}, m + (n?' '+n:'')); };
+const phOK = st => st==='submitted' || st==='approved';
+
 async function phases(){
   loading();
-  const rows = await q(sb.from('phase_items').select('*'));
-  const done = (s,i)=>{ const r = rows.find(x=>x.school===s&&x.item===i); return !!(r&&r.done); };
-  const p1 = ['01','02','03'];
+  const [rows, files] = await Promise.all([ q(sb.from('phase_items').select('*')), q(sb.from('phase_files').select('*').order('created_at',{ascending:false})) ]);
+  const stOf = (s,i)=>{ const r = rows.find(x=>x.school===s&&x.item===i); return r ? r.status : 'missing'; };
+  const rowOf = (s,i)=> rows.find(x=>x.school===s&&x.item===i);
+  const filesOf = (s,i)=> files.filter(f=>f.school===s&&f.item===i);
   const schools = (!isAdmin()&&me.school) ? [me.school] : SCHOOLS;
-  const okCount = schools.filter(s=>p1.every(i=>done(s,i))).length;
-  const toggle = async (s,i)=>{ try{ await q(sb.from('phase_items').upsert({school:s,item:i,done:!done(s,i),updated_by:me.email,updated_at:new Date().toISOString()})); phases(); }catch(x){err(x);} };
-  const cell = (s,i)=>{ const d = done(s,i);
-    const mark = h('span',{style:'font-weight:700;color:'+(d?'var(--ok)':'var(--bad)')}, d?'✔':'—');
-    return h('td',{style:'text-align:center'}, isAdmin() ? h('button',{class:'btn small ghost',title:'تغيير الحالة',onclick:()=>toggle(s,i)},mark) : mark); };
+  const kpis = h('div',{class:'kpis'}, PHASES.map(p=>{ const n = schools.filter(s=>p.items.every(it=>phOK(stOf(s,it.k)))).length;
+    return h('div',{class:'kpi'}, h('b',null,n+' / '+schools.length), h('span',null,'أكملت '+p.name.split(' - ')[0])); }));
   const tbl = h('table',null,
     h('thead',null,
-      h('tr',null,h('th',{rowspan:2},'المدرسة'),PHASES.map(([n,it])=>h('th',{colspan:it.length,style:'text-align:center'},n)),h('th',{rowspan:2},'المرحلة الأولى')),
-      h('tr',null,PHASES.flatMap(([,it])=>it.map(([k,v])=>h('th',{style:'text-align:center;font-weight:500'},k+' '+v))))),
-    h('tbody',null,schools.map(s=>{ const ok = p1.every(i=>done(s,i));
-      return h('tr',null,h('td',null,s),PHASES.flatMap(([,it])=>it.map(([k])=>cell(s,k))),
-        h('td',null,h('span',{class:'pill',style:'font-weight:700;color:'+(ok?'var(--ok)':'var(--bad)')},ok?'مكتمل':'غير مكتمل'))); })));
-  setView(h('div',null,
+      h('tr',null,h('th',{rowspan:2},'المدرسة'),PHASES.map(p=>h('th',{colspan:p.items.length,style:'text-align:center'},p.name))),
+      h('tr',null,ITEMS.map(it=>h('th',{style:'text-align:center;font-weight:400'},it.k+' '+it.t)))),
+    h('tbody',null,schools.map(s=>h('tr',null,h('td',null,h('button',{class:'back',style:'margin:0;font-weight:700',onclick:()=>go('phase/'+encodeURIComponent(s))},s)),
+      ITEMS.map(it=>h('td',{style:'text-align:center;cursor:pointer',onclick:()=>phaseItemDlg(s,it,rowOf(s,it.k),filesOf(s,it.k))}, phCell(stOf(s,it.k), filesOf(s,it.k).length)))))));
+  const legend = h('div',{class:'pills'}, Object.keys(PH_ST).map(k=>phChip(k)));
+  const reqTbl = h('table',null,h('thead',null,h('tr',null,['المرحلة','الدليل','النموذج المطلوب','التكرار','المسؤول'].map(t=>h('th',null,t)))),
+    h('tbody',null,PHASES.flatMap(p=>p.items.map((it,i)=>h('tr',null, i===0?h('td',{rowspan:p.items.length},p.name):null, h('td',null,it.k+' '+it.t), h('td',null,it.doc), h('td',null,it.freq), h('td',null,it.who))))));
+  setView(h('div',null, kpis,
     h('div',{class:'card'},
-      h('h2',null,'متابعة رفع الأدلة على الشير حسب المراحل'),
-      h('p',{class:'note'},'✔ = مرفوع في مجلد المدرسة على الشير.' + (isAdmin()?' اضغطي على الخانة لتغيير حالتها.':'')),
-      h('p',null,h('b',null,'المرحلة الأولى: '), okCount+' مكتملة · '+(schools.length-okCount)+' غير مكتملة'),
-      h('div',{class:'tw'},tbl))));
+      h('h2',null,'الأدلة المطلوبة حسب المراحل'),
+      h('p',{class:'note'},'اضغطي على أي خانة لعرض المطلوب ورفع الملفات' + (isAdmin()?' وتغيير الحالة.':'.') + ' الرقم بجانب الحالة = عدد الملفات المرفوعة في اللوحة.'),
+      legend, h('div',{class:'tw',style:'margin-top:10px'},tbl)),
+    h('div',{class:'card'}, h('h2',null,'دليل المتطلبات'), h('p',{class:'note'},'مسار الرفع على الشير: اسم المدرسة ‹ المرحلة ‹ مجلد الدليل.'), h('div',{class:'tw'},reqTbl))));
+}
+
+async function phase(enc){
+  const s = decodeURIComponent(enc||''); if (!SCHOOLS.includes(s)) return phases();
+  if (!isAdmin() && me.school && me.school!==s) return phases();
+  loading();
+  const [rows, files] = await Promise.all([ q(sb.from('phase_items').select('*').eq('school',s)), q(sb.from('phase_files').select('*').eq('school',s).order('created_at',{ascending:false})) ]);
+  const rowOf = i=> rows.find(x=>x.item===i); const stOf = i=> (rowOf(i)||{}).status || 'missing';
+  setView(h('div',null, h('button',{class:'back',onclick:()=>go('phases')},'→ رجوع لمتابعة المراحل'),
+    PHASES.map(p=>h('div',{class:'card'},
+      h('div',{class:'row'}, h('h2',null,s+' · '+p.name), phChip(p.items.every(it=>phOK(stOf(it.k)))?'approved':'missing')),
+      h('div',{class:'tw'},h('table',null,h('thead',null,h('tr',null,['الدليل','المطلوب','الحالة','الملفات',''].map(t=>h('th',null,t)))),
+        h('tbody',null,p.items.map(it=>{ const fs = files.filter(f=>f.item===it.k); const r = rowOf(it.k);
+          return h('tr',null, h('td',null,h('b',null,it.k+' '+it.t)), h('td',null,it.doc,h('div',{class:'meta'},it.freq)),
+            h('td',null,phChip(stOf(it.k)), r&&r.review_note ? h('div',{class:'meta'},r.review_note) : null),
+            h('td',null, fs.length ? fs.map(f=>h('div',null,h('a',{href:'#',onclick:e=>{e.preventDefault();openFile(f.file_path);}},f.file_name||'ملف'), f.label?h('span',{class:'meta'},' · '+f.label):null)) : h('span',{class:'meta'},'—')),
+            h('td',null,h('button',{class:'btn small',onclick:()=>phaseItemDlg(s,it,r,fs,()=>phase(enc))},'فتح'))); }))))))));
+}
+
+function phaseItemDlg(school, it, row, fs, reload){
+  reload = reload || phases;
+  const canUpload = isAdmin() || !me.school || me.school===school;
+  const st = (row&&row.status)||'missing';
+  const body = h('div',null,
+    h('p',null,h('b',null,'المدرسة: '),school),
+    h('p',null,h('b',null,'المطلوب: '),it.doc),
+    h('p',{class:'meta'},'التكرار: '+it.freq+' · المسؤول: '+it.who),
+    h('p',null,h('b',null,'الحالة: '),phChip(st), row&&row.review_note ? h('span',{class:'meta'},' · '+row.review_note) : null),
+    h('h3',{style:'margin-top:12px'},'الملفات المرفوعة'),
+    fs.length ? h('div',null,fs.map(f=>h('div',{class:'row',style:'border-bottom:1px solid var(--line);padding:6px 0'},
+      h('span',null,h('a',{href:'#',onclick:e=>{e.preventDefault();openFile(f.file_path);}},f.file_name||'ملف'), f.label?h('span',{class:'meta'},' · '+f.label):null, h('span',{class:'meta'},' · '+fmtDate(f.created_at))),
+      isAdmin() && h('button',{class:'btn danger small',onclick:async()=>{ if(confirm('حذف الملف؟')){ try{ await sb.storage.from('evidence').remove([f.file_path]); await q(sb.from('phase_files').delete().eq('id',f.id)); closeDlg(); reload(); }catch(x){err(x);} } }},'حذف')))) : h('p',{class:'meta'},'ما في ملفات مرفوعة في اللوحة للحين.'));
+  if (canUpload){
+    const file = h('input',{type:'file',required:true});
+    const lbl = it.labels ? h('select',{name:'label'},it.labels.map(l=>h('option',{value:l},l))) : h('input',{name:'label',placeholder: it.perCommunity ? 'اسم المجتمع *' : 'وصف مختصر (اختياري)', required: !!it.perCommunity});
+    const f = h('form',{class:'f',style:'margin-top:12px'},
+      h('label',{class:'full'}, it.labels ? 'التوقيت' : (it.perCommunity ? 'المجتمع' : 'الوصف'), lbl),
+      h('label',{class:'full'},'الملف *',file),
+      h('div',{class:'full actions'},h('button',{class:'btn',type:'submit'},'رفع الملف'),h('span',{class:'msg'})));
+    f.onsubmit = async e=>{ e.preventDefault(); const m = f.querySelector('.msg'); const btn = f.querySelector('button');
+      try{ const fl = file.files[0]; if (!fl) return; btn.disabled = true; m.className='msg'; m.textContent='جاري الرفع…';
+        const ext = (fl.name.split('.').pop()||'bin').toLowerCase().replace(/[^a-z0-9]/g,'');
+        const path = 'phases/' + it.k + '/' + Date.now() + '-' + Math.random().toString(36).slice(2,8) + '.' + ext;
+        const up = await sb.storage.from('evidence').upload(path, fl, {contentType: fl.type || undefined}); if (up.error) throw up.error;
+        await q(sb.from('phase_files').insert({school, item:it.k, label:(lbl.value||'').trim()||null, file_path:path, file_name:fl.name, uploaded_by:me.email}));
+        closeDlg(); reload();
+      }catch(x){ btn.disabled=false; m.className='msg err'; m.textContent='ما تم الرفع: '+(x.message||x); } };
+    body.append(h('h3',{style:'margin-top:12px'},'رفع ملف'), f);
+  }
+  if (isAdmin()){
+    const sel = h('select',null,Object.entries(PH_ST).map(([k,[l]])=>h('option',{value:k,selected:k===st},l)));
+    const note = h('input',{placeholder:'ملاحظة للمدرسة (اختياري)',value:(row&&row.review_note)||''});
+    const save = h('button',{class:'btn gold',type:'button',onclick:async()=>{ try{ save.disabled=true;
+      await q(sb.from('phase_items').upsert({school,item:it.k,status:sel.value,done:phOK(sel.value),review_note:note.value.trim()||null,updated_by:me.email,updated_at:new Date().toISOString()}));
+      closeDlg(); reload(); }catch(x){save.disabled=false;err(x);} }},'حفظ الحالة');
+    body.append(h('h3',{style:'margin-top:12px'},'المراجعة'), h('div',{class:'f',style:'display:grid;grid-template-columns:1fr 2fr auto;gap:8px'},sel,note,save));
+  }
+  body.append(h('div',{class:'actions',style:'margin-top:12px'},h('button',{class:'btn ghost',type:'button',onclick:closeDlg},'إغلاق')));
+  openDlg(it.k+' '+it.t, body);
 }
 
 /* ============ Printable forms ============ */
