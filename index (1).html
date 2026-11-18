@@ -488,16 +488,24 @@ async function members(){
 /* ============ Phases: required evidence per phase ============ */
 const PHASES = [
   {name:'المرحلة الأولى - التأسيس', items:[
-    {k:'01', t:'البيانات التحضيرية', doc:'ملف التحضير لورشة مجتمعات التعلم المهني (5 أوراق، منها مرشحا التيسير)', freq:'مرة واحدة', who:'المدرسة'},
-    {k:'02', t:'سجل المجتمعات', doc:'ورقة «سجل مجتمعات المدارس» في النموذج التشغيلي لمجتمع النطاق', freq:'مرة واحدة بعد تشكيل المجتمعات', who:'المدرسة'},
+    {k:'01', t:'البيانات التحضيرية', doc:'تعبئة بيانات المدرسة في «ملف التحضير لورشة مجتمعات التعلم المهني» (نموذج النطاق – 5 أوراق، منها مرشحا التيسير)', freq:'مرة واحدة', who:'المدرسة'},
+    {k:'02', t:'سجل المجتمعات', doc:'تعبئة ورقة «سجل مجتمعات المدارس» في النموذج التشغيلي لمجتمع النطاق (نموذج النطاق)', freq:'مرة واحدة بعد تشكيل المجتمعات', who:'المدرسة'},
     {k:'03', t:'مصفوفة النضج', doc:'أداة التقييم الذاتي (مصفوفة النضج)', freq:'مرتان: بداية العام ونهايته', who:'المدرسة', labels:['بداية العام','نهاية العام']}]},
   {name:'المرحلة الثانية - التنفيذ', items:[
     {k:'04', t:'النموذج التشغيلي', doc:'النموذج التشغيلي لمجتمع التعلم المهني', freq:'ملف لكل مجتمع', who:'المدرسة', perCommunity:true},
-    {k:'05', t:'متابعة الجودة', doc:'أداة متابعة جودة مجتمع التعلم المهني (مشتركة مع القيادة المدرسية)', freq:'لكل مجتمع في كل متابعة', who:'المدرسة', perCommunity:true},
+    {k:'05', t:'متابعة الجودة', doc:'أداة متابعة جودة مجتمع التعلم المهني (متابعة القيادة المدرسية)', freq:'لكل مجتمع في كل متابعة', who:'المدرسة', perCommunity:true},
     {k:'06', t:'شواهد التطبيق والأثر', doc:'أوراق متابعة التطبيق والفاعلية + تقرير ختام دورة العمل من النموذج التشغيلي + الأدلة الفعلية', freq:'لكل مجتمع', who:'المدرسة', perCommunity:true}]},
   {name:'المرحلة الثالثة - الختام', items:[
-    {k:'07', t:'تقرير المدرسة الفصلي', doc:'نموذج تقرير المدرسة الفصلي (القسم 5: تغذية راجعة من النطاق خلال أسبوعين من الرفع)', freq:'مرة كل فصل', who:'المدرسة + تغذية راجعة من النطاق'}]}];
+    {k:'07', t:'تقرير المدرسة الفصلي', doc:'نموذج تقرير المدرسة الفصلي', freq:'مرة كل فصل', who:'المدرسة'}]}];
 const ITEMS = PHASES.flatMap(p=>p.items);
+const SCOPE = 'النطاق 2.9';
+const SCOPE_WIDE = [
+  {k:'N1', ph:'المرحلة الأولى - التأسيس', t:'ملف التحضير', doc:'ملف التحضير لورشة مجتمعات التعلم المهني', freq:'قبل المدارس – مرة واحدة', who:'النطاق'},
+  {k:'N2', ph:'المرحلة الأولى - التأسيس', t:'النموذج التشغيلي لمجتمع النطاق', doc:'النموذج التشغيلي لمجتمع النطاق (ومنه ورقة سجل مجتمعات المدارس)', freq:'بعد تشكيل المدارس لمجتمعاتها', who:'النطاق'}];
+const SCOPE_PER_SCHOOL = [
+  {k:'N3', ph:'المرحلة الثانية - التنفيذ', t:'متابعة الجودة (زيارات النطاق)', doc:'أداة متابعة جودة مجتمع التعلم المهني – مشتركة مع القيادة المدرسية', freq:'أثناء التنفيذ – في كل زيارة', who:'النطاق', labels:null, perCommunity:true},
+  {k:'N4', ph:'المرحلة الثالثة - الختام', t:'التغذية الراجعة (القسم 5)', doc:'التغذية الراجعة – القسم 5 في تقرير المدرسة الفصلي', freq:'بعد رفع التقرير – خلال أسبوعين', who:'النطاق'}];
+const isTeam = () => isAdmin() || !me.school;
 const PH_ST = {missing:['لم يُسلَّم','','—'], submitted:['مُسلَّم – بانتظار المراجعة','','●'], approved:['معتمد','ok','✔'], needs:['يحتاج استكمال','warn','!']};
 const phChip = st => { const [l,c,m] = PH_ST[st]||PH_ST.missing; return h('span',{class:'pill '+c, title:l}, m+' '+l); };
 const phCell = (st,n) => { const [l,c,m] = PH_ST[st]||PH_ST.missing; return h('span',{class:'pill '+c, title:l, style:'min-width:44px;text-align:center'}, m + (n?' '+n:'')); };
@@ -509,24 +517,43 @@ async function phases(){
   const stOf = (s,i)=>{ const r = rows.find(x=>x.school===s&&x.item===i); return r ? r.status : 'missing'; };
   const rowOf = (s,i)=> rows.find(x=>x.school===s&&x.item===i);
   const filesOf = (s,i)=> files.filter(f=>f.school===s&&f.item===i);
+  const cellTd = (s,it)=> h('td',{style:'text-align:center;cursor:pointer',onclick:()=>phaseItemDlg(s,it,rowOf(s,it.k),filesOf(s,it.k))}, phCell(stOf(s,it.k), filesOf(s,it.k).length));
   const schools = (!isAdmin()&&me.school) ? [me.school] : SCHOOLS;
   const kpis = h('div',{class:'kpis'}, PHASES.map(p=>{ const n = schools.filter(s=>p.items.every(it=>phOK(stOf(s,it.k)))).length;
-    return h('div',{class:'kpi'}, h('b',null,n+' / '+schools.length), h('span',null,'أكملت '+p.name.split(' - ')[0])); }));
-  const tbl = h('table',null,
+    return h('div',{class:'kpi'}, h('b',null,n+' / '+schools.length), h('span',null,'مدارس أكملت '+p.name.split(' - ')[0])); }));
+  const legend = h('div',{class:'pills'}, Object.keys(PH_ST).map(k=>phChip(k)));
+  const schoolTbl = h('table',null,
     h('thead',null,
       h('tr',null,h('th',{rowspan:2},'المدرسة'),PHASES.map(p=>h('th',{colspan:p.items.length,style:'text-align:center'},p.name))),
       h('tr',null,ITEMS.map(it=>h('th',{style:'text-align:center;font-weight:400'},it.k+' '+it.t)))),
     h('tbody',null,schools.map(s=>h('tr',null,h('td',null,h('button',{class:'back',style:'margin:0;font-weight:700',onclick:()=>go('phase/'+encodeURIComponent(s))},s)),
-      ITEMS.map(it=>h('td',{style:'text-align:center;cursor:pointer',onclick:()=>phaseItemDlg(s,it,rowOf(s,it.k),filesOf(s,it.k))}, phCell(stOf(s,it.k), filesOf(s,it.k).length)))))));
-  const legend = h('div',{class:'pills'}, Object.keys(PH_ST).map(k=>phChip(k)));
-  const reqTbl = h('table',null,h('thead',null,h('tr',null,['المرحلة','الدليل','النموذج المطلوب','التكرار','المسؤول'].map(t=>h('th',null,t)))),
-    h('tbody',null,PHASES.flatMap(p=>p.items.map((it,i)=>h('tr',null, i===0?h('td',{rowspan:p.items.length},p.name):null, h('td',null,it.k+' '+it.t), h('td',null,it.doc), h('td',null,it.freq), h('td',null,it.who))))));
-  setView(h('div',null, kpis,
-    h('div',{class:'card'},
-      h('h2',null,'الأدلة المطلوبة حسب المراحل'),
+      ITEMS.map(it=>cellTd(s,it))))));
+  const schoolReq = h('table',null,h('thead',null,h('tr',null,['المرحلة','الدليل','المطلوب','التكرار'].map(t=>h('th',null,t)))),
+    h('tbody',null,PHASES.flatMap(p=>p.items.map((it,i)=>h('tr',null, i===0?h('td',{rowspan:p.items.length},p.name):null, h('td',null,it.k+' '+it.t), h('td',null,it.doc), h('td',null,it.freq))))));
+  const parts = [kpis];
+  if (isTeam()){
+    const wideTbl = h('table',null,h('thead',null,h('tr',null,['المرحلة','المطلوب من النطاق','التوقيت','الحالة','الملفات',''].map(t=>h('th',null,t)))),
+      h('tbody',null,SCOPE_WIDE.map(it=>h('tr',null,h('td',null,it.ph),h('td',null,h('b',null,it.t),h('div',{class:'meta'},it.doc)),h('td',null,it.freq),
+        h('td',null,phChip(stOf(SCOPE,it.k))),h('td',null,String(filesOf(SCOPE,it.k).length)),
+        h('td',null,h('button',{class:'btn small',onclick:()=>phaseItemDlg(SCOPE,it,rowOf(SCOPE,it.k),filesOf(SCOPE,it.k))},'فتح'))))));
+    const perTbl = h('table',null,
+      h('thead',null,h('tr',null,h('th',null,'المدرسة'),SCOPE_PER_SCHOOL.map(it=>h('th',{style:'text-align:center'},it.ph.split(' - ')[0]+': '+it.t)))),
+      h('tbody',null,SCHOOLS.map(s=>h('tr',null,h('td',null,s),SCOPE_PER_SCHOOL.map(it=>cellTd(s,it))))));
+    parts.push(h('div',{class:'card',style:'border-top:4px solid var(--gold)'},
+      h('h2',null,'أولاً: المطلوب من النطاق'),
+      h('p',{class:'note'},'نماذج النطاق وأدلته. ما تظهر للمدارس.'),
+      h('h3',null,'على مستوى النطاق'), h('div',{class:'tw'},wideTbl),
+      h('h3',{style:'margin-top:16px'},'لكل مدرسة'),
+      h('p',{class:'note'},'متابعة الجودة: '+SCOPE_PER_SCHOOL[0].freq+' · التغذية الراجعة: '+SCOPE_PER_SCHOOL[1].freq+'.'),
+      h('div',{class:'tw'},perTbl)));
+  }
+  parts.push(h('div',{class:'card',style:'border-top:4px solid var(--navy2)'},
+      h('h2',null, isTeam() ? 'ثانياً: المطلوب من المدارس' : 'الأدلة المطلوبة من المدرسة'),
       h('p',{class:'note'},'اضغطي على أي خانة لعرض المطلوب ورفع الملفات' + (isAdmin()?' وتغيير الحالة.':'.') + ' الرقم بجانب الحالة = عدد الملفات المرفوعة في اللوحة.'),
-      legend, h('div',{class:'tw',style:'margin-top:10px'},tbl)),
-    h('div',{class:'card'}, h('h2',null,'دليل المتطلبات'), h('p',{class:'note'},'مسار الرفع على الشير: اسم المدرسة ‹ المرحلة ‹ مجلد الدليل.'), h('div',{class:'tw'},reqTbl))));
+      legend, h('div',{class:'tw',style:'margin-top:10px'},schoolTbl),
+      h('h3',{style:'margin-top:16px'},'دليل متطلبات المدارس'),
+      h('p',{class:'note'},'مسار الرفع على الشير: اسم المدرسة ‹ المرحلة ‹ مجلد الدليل.'), h('div',{class:'tw'},schoolReq)));
+  setView(h('div',null, parts));
 }
 
 async function phase(enc){
@@ -551,7 +578,7 @@ function phaseItemDlg(school, it, row, fs, reload){
   const canUpload = isAdmin() || !me.school || me.school===school;
   const st = (row&&row.status)||'missing';
   const body = h('div',null,
-    h('p',null,h('b',null,'المدرسة: '),school),
+    h('p',null,h('b',null, school===SCOPE ? 'الجهة: ' : 'المدرسة: '),school),
     h('p',null,h('b',null,'المطلوب: '),it.doc),
     h('p',{class:'meta'},'التكرار: '+it.freq+' · المسؤول: '+it.who),
     h('p',null,h('b',null,'الحالة: '),phChip(st), row&&row.review_note ? h('span',{class:'meta'},' · '+row.review_note) : null),
