@@ -105,6 +105,7 @@ dialog .card{margin:0;border:0}
   <nav class="tabs"><div class="wrap" id="tabs">
     <button data-v="home">الرئيسية</button>
     <button data-v="communities">المجتمعات</button>
+    <button data-v="phases">متابعة المراحل</button>
     <button data-v="evidence">الأدلة</button>
     <button data-v="analysis">التحليل</button>
     <button data-v="members" class="adminOnly">الأعضاء</button>
@@ -195,7 +196,7 @@ function route(hash){
   const [v, id] = (hash||'home').split('/');
   current = v;
   document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on', b.dataset.v === v || (v==='community'&&b.dataset.v==='communities') || (v==='session'&&b.dataset.v==='communities')));
-  const views = {home, communities, community, session, evidence, analysis, members};
+  const views = {home, communities, community, session, evidence, analysis, members, phases};
   (views[v] || home)(id).catch(err);
 }
 
@@ -482,6 +483,36 @@ async function members(){
       h('tbody',null,list.map(m=>h('tr',null,h('td',null,m.full_name),h('td',null,m.email),h('td',null,m.role==='admin'?'مدير':'عضو'),h('td',null,m.school||'—'),
         h('td',null, m.email.toLowerCase()!==me.email.toLowerCase() && h('button',{class:'btn danger small',onclick:async()=>{ if(confirm('إزالة '+m.full_name+'؟')){ try{await q(sb.from('members').delete().eq('email',m.email)); members();}catch(x){err(x);} } }},'إزالة'))))))),
     h('h3',{style:'margin-top:16px'},'عضو جديد'), f));
+}
+
+/* ============ Phases tracking (SharePoint uploads) ============ */
+const PHASES = [['المرحلة الأولى - التأسيس',[['01','البيانات التحضيرية'],['02','سجل المجتمعات'],['03','مصفوفة النضج']]],
+  ['المرحلة الثانية - التنفيذ',[['04','النموذج التشغيلي'],['05','متابعة الجودة'],['06','شواهد التطبيق والأثر']]],
+  ['المرحلة الثالثة - الختام',[['07','تقرير المدرسة الفصلي']]]];
+async function phases(){
+  loading();
+  const rows = await q(sb.from('phase_items').select('*'));
+  const done = (s,i)=>{ const r = rows.find(x=>x.school===s&&x.item===i); return !!(r&&r.done); };
+  const p1 = ['01','02','03'];
+  const schools = (!isAdmin()&&me.school) ? [me.school] : SCHOOLS;
+  const okCount = schools.filter(s=>p1.every(i=>done(s,i))).length;
+  const toggle = async (s,i)=>{ try{ await q(sb.from('phase_items').upsert({school:s,item:i,done:!done(s,i),updated_by:me.email,updated_at:new Date().toISOString()})); phases(); }catch(x){err(x);} };
+  const cell = (s,i)=>{ const d = done(s,i);
+    const mark = h('span',{style:'font-weight:700;color:'+(d?'var(--ok)':'var(--bad)')}, d?'✔':'—');
+    return h('td',{style:'text-align:center'}, isAdmin() ? h('button',{class:'btn small ghost',title:'تغيير الحالة',onclick:()=>toggle(s,i)},mark) : mark); };
+  const tbl = h('table',null,
+    h('thead',null,
+      h('tr',null,h('th',{rowspan:2},'المدرسة'),PHASES.map(([n,it])=>h('th',{colspan:it.length,style:'text-align:center'},n)),h('th',{rowspan:2},'المرحلة الأولى')),
+      h('tr',null,PHASES.flatMap(([,it])=>it.map(([k,v])=>h('th',{style:'text-align:center;font-weight:500'},k+' '+v))))),
+    h('tbody',null,schools.map(s=>{ const ok = p1.every(i=>done(s,i));
+      return h('tr',null,h('td',null,s),PHASES.flatMap(([,it])=>it.map(([k])=>cell(s,k))),
+        h('td',null,h('span',{class:'pill',style:'font-weight:700;color:'+(ok?'var(--ok)':'var(--bad)')},ok?'مكتمل':'غير مكتمل'))); })));
+  setView(h('div',null,
+    h('div',{class:'card'},
+      h('h2',null,'متابعة رفع الأدلة على الشير حسب المراحل'),
+      h('p',{class:'note'},'✔ = مرفوع في مجلد المدرسة على الشير.' + (isAdmin()?' اضغطي على الخانة لتغيير حالتها.':'')),
+      h('p',null,h('b',null,'المرحلة الأولى: '), okCount+' مكتملة · '+(schools.length-okCount)+' غير مكتملة'),
+      h('div',{class:'tw'},tbl))));
 }
 
 /* ============ Printable forms ============ */
